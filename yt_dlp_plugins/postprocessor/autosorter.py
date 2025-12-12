@@ -5,8 +5,8 @@ from yt_dlp.postprocessor.common import PostProcessor
 
 """
 Fungsi nya buat auto sorting sesuai pattern di bawah,
-kalo mau tambahin monggo
-kalo code nya salah, maaf ye
+kalo mau tambahin monggo,
+kalo code nya salah, maaf ye,
 kalo mau pake wajib pake --restrict-filenames
 """
 
@@ -16,20 +16,21 @@ class AutoSorterPP(PostProcessor):
         super().__init__(downloader)
 
         self.patterns = {
-            r"blue_archive": "Blue_Archive",
-            r"nightcore": "Nightcore",
-            r"hardstyle": "Hardstyle",
-            r"ultrafunk": "Ultrafunk",
-            r"jumpstyle": "Jumpstyle",
-            r"montagem": "Montagem",
-            r"ahh_beat": "Ahh_Beat",
-            r"eurobeat": "Eurobeat",
-            r"caramell": "Caramel",
-            r"hardtek": "Hardtek",
+            r"mine[\s_-]*craft": "Minecraft",
+            r"blue[\s_-]*archive": "Blue_Archive",
+            r"nigh[\s_-]*tcore": "Nightcore",
+            r"hard[\s_-]*style": "Hardstyle",
+            r"ultra[\s_-]*funk": "Ultrafunk",
+            r"jump[\s_-]*style": "Jumpstyle",
+            r"monta[\s_-]*gem": "Montagem",
+            r"ah+h?[\s_-]*beat": "Ahh_Beat",
+            r"euro[\s_-]*beat": "Eurobeat",
+            r"caramell?[\s_-]*dansen": "Caramell_dansen",
+            r"hard[\s_-]*tek": "Hardtek",
             r"phonk": "Phonk",
             r"funk": "Funk",
-            r"lofi": "Lofi",
-            r"mtg": "Mtg",
+            r"lo[\s_-]*fi": "Lofi",
+            r"m[\s_-]*t[\s_-]*g": "Mtg",
         }
 
     def run(self, info):
@@ -45,7 +46,7 @@ class AutoSorterPP(PostProcessor):
                 if re.search(pattern, filename, re.IGNORECASE):
                     target_path = base_path / new_folder_name
                     target_path.mkdir(parents=True, exist_ok=True)
-             
+            
                     new_filepath = target_path / filename
                     if new_filepath.exists():
                         self.to_screen(f"{new_filepath} exists, skipping this file.")

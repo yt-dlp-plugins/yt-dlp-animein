@@ -1,3 +1,10 @@
 # Generated gitignore - Sat Dec 13 01:20:41 AM WIB 2025
 yt_dlp_plugins/postprocessor/__pycache__/
 yt-dlp/
+config
+anjayalok.json
+.pyvenv
+.venv/
+setup.cfg
+dist/
+pyproject.toml
