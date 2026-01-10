@@ -1,10 +1,12 @@
 # Generated gitignore - Sat Dec 13 01:20:41 AM WIB 2025
-yt_dlp_plugins/postprocessor/__pycache__/
-yt-dlp/
+*.txt
+.*
+!.gitignore
 config
-anjayalok.json
-.pyvenv
-.venv/
-setup.cfg
-dist/
-pyproject.toml
+json/
+*.bak
+
+yt_dlp_plugins/postprocessor/
+yt_dlp_plugins/extractor/animekumovie.py
+animeku/
+/*.json
