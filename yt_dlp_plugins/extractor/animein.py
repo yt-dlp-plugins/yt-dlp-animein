@@ -26,7 +26,7 @@ class AnimeInWebIE(InfoExtractor):
     ]
 
     _VALID_URL = (
-        r"https?://animeinweb\.com/anime/(?P<id>\d+)(?:\?ep=(?P<episode_id>\d+))?"
+        r"https?://animeinweb\.com/anime/(?P<id>\d+)"
     )
 
     def _get_thumbnail(self, image_url, base_url="https://api.animein.net"):

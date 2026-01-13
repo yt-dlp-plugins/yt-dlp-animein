@@ -111,29 +111,44 @@ class AnimeKuIE(InfoExtractor):
             )
         return formats
 
+
     def _extract_episode_info(self, eps_name):
         """Extract episode number dari string apapun"""
-        text = str(eps_name).lower()
 
-        # Pattern 1: "Episode XX" atau "Ep. XX"
+        if not eps_name:
+            return None, None
+
+        text = str(eps_name).lower().strip()
+
+        # Priority patterns (dari spesifik ke umum)
         patterns = [
-            r"episode\s+(\d+)",  # "Episode 01"
-            r"ep\.?\s*(\d+)",  # "Ep 01", "Ep.01"
-            r"#(\d+)",  # "#01"
-            r"(\d+)(?:\s*\[)",  # "01 [Buray Disc]" (angka sebelum bracket)
+            r"(?:episode|ep\.?)\s*(\d+)",      # "Episode 1", "Ep.01", "ep 1"
+            r"#(\d+)",                          # "#01"
+            r"eps?\s*(\d+)",                    # "eps 1" (casual)
+            r"(\d+)(?:\s*\[)",                  # "01 [Blu-ray]"
+            r"(\d+)(?:\s*v\d)",                 # "01v2" (version)
+            r"\b(\d{1,3})\b",                   # angka standalone 1-3 digit
         ]
 
         for pattern in patterns:
-            match = re.search(pattern, text, re.IGNORECASE)
-            eps = match.group(1)
+            match = re.search(pattern, text)
             if match:
+                eps = match.group(1)
                 return int(eps), f"Episode {eps}"
 
-        # Fallback: angka terakhir
+        # Ultimate fallback: cari angka terakhir
         all_nums = re.findall(r"\d+", text)
-        eps_int = int(all_nums[-1]) if all_nums else None
-        eps_str = f"Episode {eps_int}"
-        return eps_int, eps_str
+        if all_nums:
+            try:
+                eps_int = int(all_nums[-1])
+                # Filter angka yang terlalu besar (bukan episode)
+                if eps_int < 1000:  # episode biasanya < 1000
+                    return eps_int, f"Episode {eps_int}"
+            except ValueError:
+                pass
+            
+        return None, None
+
 
     def _real_extract(self, url):
         self.to_screen("🏴‍☠️  YARRR! Downloading pirated anime...")
