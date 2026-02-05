@@ -1,12 +1,8 @@
 # Generated gitignore - Sat Dec 13 01:20:41 AM WIB 2025
-*.txt
 .*
 !.gitignore
 config
-json/
-*.bak
-
 yt_dlp_plugins/postprocessor/
 yt_dlp_plugins/extractor/animekumovie.py
-animeku/
-/*.json
+*.egg-info/
+/build

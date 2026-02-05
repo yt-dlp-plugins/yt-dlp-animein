@@ -8,7 +8,8 @@
 [![DMCA Shield](https://img.shields.io/badge/DMCA-Proof-red)](https://www.dmca.com/)
 [![Wibu Level](https://img.shields.io/badge/Wibu-Maximum-orange)](https://knowyourmeme.com/memes/wibu)
 
-# yt-dlp animeku & animein Extractor
+
+# yt-dlp animein Extractor
 YA INI BUAT DOWNLOAD ANIME BAJAKAN SUB INDO!
 TAPI:
 1. Jangan jual kontennya
@@ -39,16 +40,17 @@ python -m pip install git+https://github.com/Asep5K/wibu-downloader.git
 ```bash
 # Download anime bajakan
 yt-dlp 'animein:Kaifuku Jutsushi no Yarinaoshi'
-yt-dlp 'animeku:Kaifuku Jutsushi no Yarinaoshi'
 
 # Pilih kualitas bajakan
-yt-dlp -f 'bv*[height<=1080]' 'animeku:Kaifuku Jutsushi no Yarinaoshi'
 yt-dlp -f 'bv*[height<=1080]' 'animein:Kaifuku Jutsushi no Yarinaoshi'
+
+# Menggunakan link
+yt-dlp https://animeinweb.com/anime/1280  
 ```
 
-## 📛 ANIMEIN SPECIAL
-Bisa pake URL langsung dari [animein](https://animeinweb.com)
-(Tapi tetep aja bajakan wkwk)
+<!-- ## 📛 ANIMEIN SPECIAL -->
+<!-- Bisa pake URL langsung dari [animein](https://animeinweb.com) -->
+<!-- (Tapi tetep aja bajakan wkwk) -->
 
 ## Educational Purpose Only
 Code ini dibuat untuk pembelajaran:
