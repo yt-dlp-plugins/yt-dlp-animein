@@ -9,3 +9,35 @@ universal = true
 name = "wibu-downloader"
 version = "2.0.0"
 requires-python = ">=3.11"
+readme = "README.md"
+description = "yt-dlp extractor for animeinweb.com"
+authors = [
+    { name = "Asep5K" },
+    { email = "210173402+Asep5K@users.noreply.github.com" }
+]
+keywords = [
+    "yt-dlp",
+    "custom extractor",
+    "animein",
+]
+dependencies = [
+    "yt-dlp>=2025.12.08",
+]
+license = "GPL-3.0-or-later"
+license-files = ["LICENSE"]
+
+[project.urls]
+Homepage = "https://github.com/Asep5K/wibu-downloader"
+Repository = "https://github.com/Asep5K/wibu-downloader"
+Tracker = "https://github.com/Asep5K/wibu-downloader/issues"
+
+[tool.ruff.format]
+quote-style = "single"
+
+[tool.ruff.lint]
+select = ["E", "W", "F", "I"]
+
+[tool.ruff.lint.flake8-quotes]
+inline-quotes = "single"
+multiline-quotes = "single"
+docstring-quotes = "double"

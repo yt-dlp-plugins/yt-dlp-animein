@@ -19,6 +19,7 @@ mp.add_hook("on_load", 10, function()
             "--get-url",
             "--yes-playlist",
             "--flat-playlist",
+            "--ignore-config"
         }
         
         -- Tambah format filter kalo user kasih
