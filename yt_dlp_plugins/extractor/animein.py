@@ -1,6 +1,8 @@
-import itertools, re
-from yt_dlp.utils import urljoin, int_or_none
+import itertools
+import re
+
 from yt_dlp.extractor.common import InfoExtractor, SearchInfoExtractor
+from yt_dlp.utils import int_or_none, urljoin
 
 # https://animeinweb.com/anime/1280?ep1
 # https://animeinweb.com/api/proxy/3/2/movie/episode/1280?page=0
@@ -33,55 +35,38 @@ class AnimeInWebIE(InfoExtractor):
         metadata_dict = self.call_api(
             path_url=f'/api/proxy/3/2/movie/detail/{anime_id}', item=anime_id
         )
-        return metadata_dict.get('data').get('movie')
+        return metadata_dict.get('data',{}).get('movie',{})
 
     def get_filesize(self, size_str):
-        if not size_str:
+        """Buat nyari filezie ntah mb ntah gb"""
+        try:
+            return int(float(size_str) * 1024**2) if size_str else None
+        except (ValueError, TypeError, AttributeError):
             return None
 
-        if isinstance(size_str, str):
-            return int(float(size_str) * 1024**2)
-
-        return None
-
-    def url_verification(self, link):
-        if not link:
-            return False
-
-        IGNORE_PATTERNS = [
-            'gdriveplayer.to',
-            'new.uservideo.xyz',
-            'www.blogger.com',
-            'uservideo.xyz',
-            'embed2.php',
-            '/embed',
-            '?embed=true',
-            'autoplay=true',
-        ]
-
-        if any(bad_pattern in link for bad_pattern in IGNORE_PATTERNS):
-            return False
-
-        return link
-
     def fill_formats(self, episode_id, episode):
+        """Buat isi formats"""
         if not episode_id:
-            return False
+            return []
 
         streams_info = self.call_api(
             path_url=f'/api/proxy/3/2/episode/streamnew/{episode_id}',
             item=episode_id,
             note=f'Downloading info {episode}',
         )
-        streams = streams_info.get('data').get('server')
+        streams = streams_info.get('data',{}).get('server',[])
 
         formats = []
         for stream in streams:
-            link_stream = self.url_verification(stream.get('link'))
-            quality = stream.get('quality', {})
-
-            if not link_stream:
+            # skip url yang bukan direct, ini penyebab error
+            stream_type = stream.get('type')
+            if not stream_type or  stream_type.lower() != 'direct':
+                # self.to_screen('Skip: bukan direct url')
                 continue
+
+            link_stream = stream.get('link')
+            quality = stream.get('quality','')
+
             if not re.search(r'^\d+p?$', quality, re.IGNORECASE):
                 # api ngent0t ada aja bug nya
                 continue
@@ -104,7 +89,7 @@ class AnimeInWebIE(InfoExtractor):
 
     def get_thumbnail(self, base_url='https://api.animein.net', image_url=None):
         """Fungsi buat nyambung url kalo url nya ga jelas"""
-        if image_url is None:
+        if not image_url:
             return None
 
         if image_url.startswith(('https://', 'http://')):
@@ -118,9 +103,11 @@ class AnimeInWebIE(InfoExtractor):
 
     def _real_extract(self, url):
         """real extract: buat ekstrak dan kirim ke yt-dlp ☺"""
+
         self.to_screen('Kalo ada bug kabarin ya! 😅')
         anime_id = self._match_id(url)
         anime_info = self.extract_anime_info(anime_id=anime_id)
+        title = anime_info.get("title")
 
         entries = []
         for i in itertools.count(0):
@@ -131,9 +118,10 @@ class AnimeInWebIE(InfoExtractor):
                 note=f'Downloading page {i}',
             )
 
-            episode_info = episode_info_dict.get('data').get('episode')
+            episode_info = episode_info_dict.get('data',{}).get('episode',[])
 
             if not episode_info:
+                self.to_screen('Ini page terakhir, mau kemana lagi?')
                 break
 
             for idx in episode_info:
@@ -144,12 +132,13 @@ class AnimeInWebIE(InfoExtractor):
                 entries.append(
                     {
                         'id': episode_id,
-                        'title': f'{anime_info.get("title")} {episode_str} ',
+                        'title': f'{title} {episode_str}',
+                        'playlist_title': title,
                         'episode': episode_str,
                         'episode_number': int_or_none(episode_index),
-                        'thumbnail': self.get_thumbnail(idx.get('image')),
+                        'thumbnail': self.get_thumbnail(image_url=idx.get('image')),
                         'formats': self.fill_formats(episode_id, episode_str),
-                        'webpage_url': f'{url}?ep{episode_index}',
+                        'webpage_url': url,
                     }
                 )
 
@@ -171,7 +160,7 @@ class AnimeInSearchIE(SearchInfoExtractor, AnimeInWebIE):
             query = {'page': i, 'sort': 'views', 'keyword': query}
             result = self.call_api(
                 path_url='/api/proxy/3/2/explore/movie', item=i, query=query
-            )['data'].get('movie')
+            )['data'].get('movie',{})
 
             if not result:
                 self.to_screen('Tidak menemukan daftar anime')
