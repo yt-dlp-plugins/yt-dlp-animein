@@ -8,7 +8,6 @@
 [![DMCA Shield](https://img.shields.io/badge/DMCA-Proof-red)](https://www.dmca.com/)
 [![Wibu Level](https://img.shields.io/badge/Wibu-Maximum-orange)](https://knowyourmeme.com/memes/wibu)
 
-
 # yt-dlp animein Extractor
 YA INI BUAT DOWNLOAD ANIME BAJAKAN SUB INDO!
 TAPI:
@@ -42,11 +41,35 @@ python -m pip install git+https://github.com/Asep5K/wibu-downloader.git
 yt-dlp 'animein:Kaifuku Jutsushi no Yarinaoshi'
 
 # Pilih kualitas bajakan
-yt-dlp -f 'bv*[height<=1080]' 'animein:Kaifuku Jutsushi no Yarinaoshi'
+yt-dlp -f '[height<=1080]' 'animein:Kaifuku Jutsushi no Yarinaoshi'
 
 # Menggunakan link
 yt-dlp https://animeinweb.com/anime/1280  
 ```
+
+## TONTON LANGSUNG MENGGUNAKAN MPV!!
+- Download [mpv](https://github.com/mpv-player/mpv)
+
+- Download juga [animein.lua](./mpv-scripts/animein.lua)
+
+### Contoh penggunaan
+```bash
+mpv --scripts=animein.lua 'https://animeinweb.com/anime/4347'
+
+mpv --ytdl-format='[height<=360]' --scripts=animein.lua 'https://animeinweb.com/anime/4347'
+```
+
+### Atau copy [animein.lua](./mpv-scripts/animein.lua) ke:
+- GNU/Linux or macOS: ~/.config/mpv/scripts/[animein.lua](./mpv-scripts/animein.lua) 
+- windows: C:/Users/Username/AppData/Roaming/mpv/scripts/[animein.lua](./mpv-scripts/animein.lua)
+
+### Jika sudah set config
+```bash
+mpv 'https://animeinweb.com/anime/4347'
+
+mpv --ytdl-format='[height<=360]' 'https://animeinweb.com/anime/4347'
+```
+
 
 <!-- ## 📛 ANIMEIN SPECIAL -->
 <!-- Bisa pake URL langsung dari [animein](https://animeinweb.com) -->
