@@ -7,7 +7,7 @@ universal = true
 
 [project]
 name = "wibu-downloader"
-version = "2.0.0"
+version = "2.0.1"
 requires-python = ">=3.11"
 readme = "README.md"
 description = "yt-dlp extractor for animeinweb.com"
