@@ -102,7 +102,7 @@ $ mpv --user-agent='Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, l
 [cplayer] finished playback, unrecognized file format (reason 4)
 [cplayer] Failed to recognize file format.
 ```
-### Gunakan flag  --ytdl-raw-options-set='ignore-no-formats-error='
+### Gunakan flag  --ytdl-raw-options-append='ignore-no-formats-error='
 ```
 mpv --ytdl-raw-options-append='ignore-no-formats-error=' 'https://animeinweb.com/anime/426'
 ```
