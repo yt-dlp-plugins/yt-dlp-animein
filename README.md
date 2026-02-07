@@ -37,19 +37,19 @@ python -m pip install git+https://github.com/Asep5K/wibu-downloader.git
 
 ## CARA PENGGUNAAN
 
-### ⚠️ sangat di sarankan menggunakan --output '%(playlist_title)s/%(title)s'
+### ⚠️ sangat di sarankan menggunakan --output '%(playlist_title)s/%(title)s.%(ext)s'
 ```bash
 # Download anime bajakan
-yt-dlp 'animein:Kaifuku Jutsushi no Yarinaoshi' --output '%(playlist_title)s/%(title)s'
+yt-dlp 'animein:Kaifuku Jutsushi no Yarinaoshi' --output '%(playlist_title)s/%(title)s.%(ext)s'
 
 # Pilih kualitas bajakan
-yt-dlp -f '[height<=1080]' 'animein:Kaifuku Jutsushi no Yarinaoshi' --output '%(playlist_title)s/%(title)s'
+yt-dlp -f '[height<=1080]' 'animein:Kaifuku Jutsushi no Yarinaoshi' --output '%(playlist_title)s/%(title)s.%(ext)s'
 
 # Menggunakan link
-yt-dlp 'https://animeinweb.com/anime/1280' --output '%(playlist_title)s/%(title)s'
+yt-dlp 'https://animeinweb.com/anime/1280' --output '%(playlist_title)s/%(title)s.%(ext)s'
 
 # Pake flag ini biar skip episode yang error:
-yt-dlp --ignore-no-formats-error 'https://animeinweb.com/anime/1280'
+yt-dlp --ignore-no-formats-error 'https://animeinweb.com/anime/1280' --output '%(playlist_title)s/%(title)s.%(ext)s'
 ```
 
 ## TONTON LANGSUNG MENGGUNAKAN MPV!!
@@ -102,9 +102,9 @@ $ mpv --user-agent='Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, l
 [cplayer] finished playback, unrecognized file format (reason 4)
 [cplayer] Failed to recognize file format.
 ```
-### Gunakan flag  --ytdl-raw-options-set='ignore-no-formats-error='
+### Gunakan flag  --ytdl-raw-options-append='ignore-no-formats-error='
 ```
-mpv --ytdl-raw-options='ignore-no-formats-error=' 'https://animeinweb.com/anime/426'
+mpv --ytdl-raw-options-append='ignore-no-formats-error=' 'https://animeinweb.com/anime/426'
 ```
 
 
