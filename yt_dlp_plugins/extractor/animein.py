@@ -133,6 +133,7 @@ class AnimeInWebIE(InfoExtractor):
                     {
                         'id': episode_id,
                         'title': f'{title} {episode_str}',
+                        'series': title,
                         'playlist_title': title,
                         'episode': episode_str,
                         'episode_number': int_or_none(episode_index),
