@@ -21,18 +21,13 @@ Dosa tanggung sendiri ya wibu! 🙏
 
 
 ## INSTALASI
-### Manual (lebih wibu)
+**Via PyPi**
 ```bash
-mkdir -p ~/.config/yt-dlp/plugins
-
-git clone https://github.com/Asep5K/wibu-downloader.git ~/.config/yt-dlp/plugins/wibu-downloader
+pip install -U wibu-downloader
 ```
-
-### Atau pake pip (kurang wibu)
+**Atau**
 ```bash
 python -m pip install -U https://github.com/Asep5K/wibu-downloader/archive/main.zip
-# Atau:
-python -m pip install git+https://github.com/Asep5K/wibu-downloader.git
 ```
 
 ## CARA PENGGUNAAN
@@ -54,10 +49,6 @@ yt-dlp --ignore-no-formats-error 'https://animeinweb.com/anime/1280' --output '%
 
 ## TONTON LANGSUNG MENGGUNAKAN MPV!!
 ### Download [mpv disini](https://github.com/mpv-player/mpv)
-
-**Good news!** Ga perlu pake script [animein.lua](./mpv-scripts/animein.lua) lagi. Bisa di-uninstall/deleted!    
-**Sangat di sarankan di delete saja!**
-
 **Contoh penggunaan:**
 ```bash
 mpv 'https://animeinweb.com/anime/4347'
