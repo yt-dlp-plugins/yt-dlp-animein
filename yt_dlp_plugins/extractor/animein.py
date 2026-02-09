@@ -164,13 +164,9 @@ class AnimeInSearchIE(SearchInfoExtractor, AnimeInWebIE):
             )['data'].get('movie',{})
 
             if not result:
-                self.to_screen('Tidak menemukan daftar anime')
                 break
 
-            anime_id = result[i].get('id')
-
-            self.to_screen(anime_id)
-
-            yield self.url_result(
-                f'https://animeinweb.com/anime/{anime_id}', AnimeInWebIE
-            )
+            for episode in result:
+                yield self.url_result(url=f'https://animeinweb.com/anime/{episode.get('id')}',
+                                ie=AnimeInWebIE, video_id=episode.get('id'), video_title=episode.get('title'))
+                
