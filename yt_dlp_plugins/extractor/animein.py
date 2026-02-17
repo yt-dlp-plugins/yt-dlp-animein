@@ -1,8 +1,7 @@
 import itertools
-import re
 
 from yt_dlp.extractor.common import InfoExtractor, SearchInfoExtractor
-from yt_dlp.utils import int_or_none, urljoin
+from yt_dlp.utils import float_or_none, int_or_none, parse_resolution, str_to_int, urljoin
 
 # pylint: disable=abstract-method
 
@@ -28,8 +27,7 @@ class AnimeIn(InfoExtractor):
             fatal=fatal,
         )
 
-    def _get_episode_info(self, episode_id: str,
-                          episode: str) -> list[dict] | None:
+    def _get_episode_info(self, episode_id: str, episode: str) -> list[dict] | None:
         episode_info = self._call_api(
             path_url=f'/api/proxy/3/2/episode/streamnew/{episode_id}',
             video_id=episode_id,
@@ -37,17 +35,17 @@ class AnimeIn(InfoExtractor):
         )
         return episode_info.get('data', {}).get('server', [])
 
+
     @staticmethod
     def _parse_quality_string(quality_str: str | None = None) -> int | None:
         if not quality_str:
             return None
 
-        # Match pattern seperti '720', '720p', '1080', '1080p'
-        match = re.match(r'^(\d+)p?$', quality_str, re.IGNORECASE)
-        if match:
-            return int(match.group(1))
-
+        resolution = parse_resolution(quality_str)
+        if resolution and isinstance(resolution, dict):
+            return resolution.get('height')
         return None
+
 
     def _build_format_entry(self, stream_data: dict) -> dict | None:
         stream_type = stream_data.get('type').lower()
@@ -55,12 +53,12 @@ class AnimeIn(InfoExtractor):
         stream_url = stream_data.get('link')
 
         if stream_type != 'direct' or not stream_url:
-            return None
+            return {}
 
         height = self._parse_quality_string(quality_str)
 
         if not height:
-            return None
+            return {}
 
         return {
             'url': stream_url,
@@ -73,6 +71,7 @@ class AnimeIn(InfoExtractor):
             ),
         }
 
+
     def _extract_formats(self, episode_id: str, episode: str) -> list[dict]:
         streams = self._get_episode_info(episode_id, episode)
         formats = []
@@ -84,9 +83,10 @@ class AnimeIn(InfoExtractor):
 
         return formats
 
+
     @staticmethod
     def _get_thumbnail(base_url: str = 'https://api.animein.net',
-                       image_url: str | None = None) -> str | None:
+                        image_url: str | None = None) -> str | None:
         """Fungsi buat nyambung url kalo url nya ga jelas"""
         if not image_url:
             return None
@@ -96,19 +96,21 @@ class AnimeIn(InfoExtractor):
                 return f'{image_url}_full.jpg'
 
         if image_url.startswith(('/assets', '/')):
-            return f'{base_url}{image_url}'
+            return urljoin(base_url, image_url)
 
         return None
+
 
     @staticmethod
     def _parse_filesize(size_str: str | None = None) -> int | None:
         """Buat nyari filezie ntah mb ntah gb"""
         try:
-            return int(float(size_str) * 1024**2) if size_str else None
+            return str_to_int(float_or_none(size_str) * 1024**2) if size_str else None
         except (ValueError, TypeError, AttributeError):
             return None
 
-    def _get_anime_info(self, anime_id: str) -> dict | None:
+
+    def _get_anime_info(self, anime_id: str) -> dict[str] | None:
         """Buat ambil judul anime doang sih wkwk"""
         metadata_dict = self._call_api(
             path_url=f'/api/proxy/3/2/movie/detail/{anime_id}',
@@ -116,7 +118,8 @@ class AnimeIn(InfoExtractor):
         )
         return metadata_dict.get('data', {}).get('movie', {})
 
-    def _extract_all_episodes(self, anime_id: str) -> list[dict] | None:
+
+    def _extract_all_episodes(self, anime_id: str) -> list[str, dict] | None:
         for page_num in itertools.count(0):
             episodes = self._fetch_episode_list_page(anime_id, page_num)
             if not episodes:
@@ -125,8 +128,8 @@ class AnimeIn(InfoExtractor):
 
             yield from episodes
 
-    def _fetch_episode_list_page(self, anime_id: str,
-                                 page_num: int = 0) -> list[dict] | None:
+
+    def _fetch_episode_list_page(self, anime_id: str, page_num: int = 0) -> list[str, dict] | None:
         response = self._call_api(
             path_url=f'/api/proxy/3/2/movie/episode/{anime_id}',
             video_id=anime_id,
@@ -136,8 +139,8 @@ class AnimeIn(InfoExtractor):
 
         return response.get('data', {}).get('episode', [])
 
-    def _search_anime(self, query: str,
-                      page_num: str = 0) -> list[dict] | None:
+
+    def _search_anime(self, query: str, page_num: str = 0) -> list[str, dict] | None:
         response = self._call_api(
             path_url='/api/proxy/3/2/explore/movie',
             video_id=query,
@@ -153,7 +156,7 @@ class AnimeInWebIE(AnimeIn):
     IE_NAME = 'animeinweb'
     _VALID_URL = r'https?://animeinweb\.com/anime/(?P<id>\d+)'
 
-    def _build_episode_entry(self, episode_data: dict, anime_title: str) -> dict:
+    def _build_episode_entry(self, episode_data: dict, anime_title: str) -> dict[str, list]:
         episode_id = episode_data.get('id')
         episode_title = episode_data.get('title', '')
         episode_index = episode_data.get('index')
@@ -167,9 +170,21 @@ class AnimeInWebIE(AnimeIn):
             'episode_number': int_or_none(episode_index),
             'thumbnail': self._get_thumbnail(image_url=episode_data.get('image')),
             'formats': self._extract_formats(episode_id, episode_title),
+            'http_headers': {
+                'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36',
+                'Accept-Language': 'en-US,en;q=0.8',
+                'Accept-Encoding': 'identity;q=1, *;q=0',
+                'Accept': '*/*',
+                'Connection': 'keep-alive',
+                'Host': 'storages.animein.net',
+                'Sec-Fetch-Dest': 'video',
+                'sec-ch-ua-mobile': '?0',
+                'Referer': 'https://animeinweb.com/',
+            },
         }
 
-    def _real_extract(self, url: str) -> dict:
+
+    def _real_extract(self, url: str) -> dict[list]:
         anime_id = self._match_id(url)
         anime_title = self._get_anime_info(anime_id).get('title')
 
