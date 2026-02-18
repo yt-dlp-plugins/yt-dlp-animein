@@ -1,7 +1,7 @@
 import itertools
 
 from yt_dlp.extractor.common import InfoExtractor, SearchInfoExtractor
-from yt_dlp.utils import float_or_none, int_or_none, parse_resolution, str_to_int, urljoin
+from yt_dlp.utils import float_or_none, int_or_none, parse_resolution, str_to_int, urljoin, random_user_agent
 
 # pylint: disable=abstract-method
 
@@ -60,9 +60,17 @@ class AnimeIn(InfoExtractor):
         if not height:
             return {}
 
+        # mapping format_id mirip yt, wkwk
+        fmt_map = {
+            360: '18',
+            480: '35',
+            720: '22',
+            1080: '37',
+        }
+
         return {
             'url': stream_url,
-            'format_id': quality_str,
+            'format_id': fmt_map.get(height, height),
             'quality': quality_str,
             'height': height,
             'width': int_or_none((height * 16) / 9),
@@ -171,7 +179,7 @@ class AnimeInWebIE(AnimeIn):
             'thumbnail': self._get_thumbnail(image_url=episode_data.get('image')),
             'formats': self._extract_formats(episode_id, episode_title),
             'http_headers': {
-                'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36',
+                'User-Agent': random_user_agent(),
                 'Accept-Language': 'en-US,en;q=0.8',
                 'Accept-Encoding': 'identity;q=1, *;q=0',
                 'Accept': '*/*',
