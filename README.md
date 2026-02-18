@@ -38,45 +38,19 @@
     # Pake flag ini biar skip episode yang error:
     yt-dlp --ignore-no-formats-error 'https://animeinweb.com/anime/1280' --output '%(playlist_title)s/%(title)s.%(ext)s'
 
+**Pemilihan resolusi bisa menggunakan format berikut**:
+
+* `18`: `360p` 
+* `35`: `480p` 
+* `22`: `720p` 
+* `37`: `1080p` 
+
 
 ## TONTON LANGSUNG MENGGUNAKAN MPV!!
 ### Download [mpv disini](https://github.com/mpv-player/mpv)
 **Contoh penggunaan:**
 
-    mpv 'https://animeinweb.com/anime/4347'
-
-    # Ambil hanya resolusi kurang dari atau sama dengan 720p
-    mpv --ytdl-format='[height<=720]' 'https://animeinweb.com/anime/4347'
-
-
-### Jika mengalami error
-**Contoh error:**
-
-    $ mpv 'https://animeinweb.com/anime/6222'
-        Playing: https://storages.animein.net/Kizoku%20Tensei%3A%20Megumareta%20Umare%20kara%20Saikyou%20no%20Chikara%20wo%20Eru%2F1-1080p-1767541103168.mp4
-        [ffmpeg] https: HTTP error 403 Forbidden
-        Failed to open https://storages.animein.net/Kizoku%20Tensei%3A%20Megumareta%20Umare%20kara%20Saikyou%20no%20Chikara%20wo%20Eru%2F1-1080p-1767541103168.mp4.
-        Playing: https://storages.animein.net/Kizoku%20Tensei%3A%20Megumareta%20Umare%20kara%20Saikyou%20no%20Chikara%20wo%20Eru%2F2-1080p-1768145495797.mp4
-        [ffmpeg] https: HTTP error 403 Forbidden
-        Failed to open https://storages.animein.net/Kizoku%20Tensei%3A%20Megumareta%20Umare%20kara%20Saikyou%20no%20Chikara%20wo%20Eru%2F2-1080p-1768145495797.mp4.
-        Exiting... (Quit)
-
-### Gunakan user-agent
-
-    $ mpv --user-agent='Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36' 'https://animeinweb.com/anime/6222'
-        Playing: https://storages.animein.net/Kizoku%20Tensei%3A%20Megumareta%20Umare%20kara%20Saikyou%20no%20Chikara%20wo%20Eru%2F1-1080p-1767541103168.mp4
-         ● Video  --vid=1  (h264 1920x1080 23.976 fps) [default]
-         ● Audio  --aid=1  (aac 2ch 48000 Hz 192 kbps) [default]
-        [modernz] URL detected.
-        [modernz] Fetching file size...
-        Using hardware decoding (vaapi).
-        [autoconvert] Converting vaapi[nv12] -> vaapi[rgb0]
-        AO: [pipewire] 48000Hz stereo 2ch floatp
-        VO: [dmabuf-wayland] 1920x1080 vaapi[rgb0]
-        [modernz] Download size: 258.588 MiB
-        AV: 00:00:02 / 00:23:42 (0%) A-V:  0.007 DS: 2.5938/1 Cache: 18s/2MB
-        Exiting... (Quit)
-
+    mpv --referrer=https://animeinweb.com/ 'https://animeinweb.com/anime/4347'
 
 ### Error `"No video formats found!"`
 
