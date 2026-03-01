@@ -11,9 +11,8 @@ from yt_dlp.utils import (
     urljoin,
 )
 
+
 # pylint: disable=abstract-method
-
-
 class AnimeIn(InfoExtractor):
     """ANIMEIN BASE EXTRACTOR"""
 
@@ -39,26 +38,27 @@ class AnimeIn(InfoExtractor):
 
     @staticmethod
     def _parse_quality_string(quality_str: str | None = None) -> int | None:
+        fmt_map = {360: '18', 480: '35', 720: '22', 1080: '37'}
         if not quality_str:
-            return None
+            return None, None
         resolution = parse_resolution(quality_str)
         if resolution and isinstance(resolution, dict):
-            return resolution.get('height')
-        return None
+            res = resolution.get('height')
+            return res, fmt_map[res]
+        return None, None
 
     def _build_format_entry(self, stream_data: dict) -> dict | None:
         stream_type = stream_data.get('type').lower()
         quality_str = stream_data.get('quality', '')
         stream_url = stream_data.get('link')
-        if stream_type != 'direct' or not stream_url:
+        height, format_id = self._parse_quality_string(quality_str)
+        if (stream_type != 'direct'
+            or not stream_url
+                or not height):
             return {}
-        height = self._parse_quality_string(quality_str)
-        if not height:
-            return {}
-        fmt_map = {360: '18', 480: '35', 720: '22', 1080: '37'}  # mapping format_id mirip yt, wkwk
         return {
             'url': stream_url,
-            'format_id': fmt_map.get(height, height),
+            'format_id': format_id,
             'quality': quality_str,
             'height': height,
             'width': int_or_none((height * 16) / 9),
@@ -146,6 +146,10 @@ class AnimeInWebIE(AnimeIn):  # TODO: toda todo tok tell gatel
         episode_title = episode_data.get('title', '')
         episode_index = episode_data.get('index')
         title = anime_data.get('title')
+        formats = self._extract_formats(episode_id, episode_title)
+        if not formats:
+            self.report_warning(f'No formats found for episode {episode_index}')
+            return {}
         return {
             'id': episode_id,
             'title': f'{title} {episode_title}',
@@ -160,7 +164,7 @@ class AnimeInWebIE(AnimeIn):  # TODO: toda todo tok tell gatel
             'categories': [x.strip() for x in anime_data.get('genre').split(',')],
             'episode_number': int_or_none(episode_index),
             'thumbnail': self._get_thumbnail(image_url=episode_data.get('image')),
-            'formats': self._extract_formats(episode_id, episode_title),
+            'formats': formats,
             # TAMBAHAN SENDIRI BUKAN METADATA RESMI yt-dlp
             'image_poster': anime_data.get('image_poster'),
             'image_cover': anime_data.get('image_cover'),
@@ -172,6 +176,8 @@ class AnimeInWebIE(AnimeIn):  # TODO: toda todo tok tell gatel
         entries = []
         for episode_data in self._extract_all_episodes(anime_id):
             entry = self._build_episode_entry(episode_data, anime_data)
+            if not entry:
+                continue
             entry['series_id'] = anime_id
             entries.append(entry)
         return {
@@ -197,7 +203,7 @@ class AnimeInSearchIE(SearchInfoExtractor, AnimeInWebIE):
             for data in anime_list:
                 yield self.url_result(
                     url=f'https://animeinweb.com/anime/{data.get("id")}',
-                    ie=AnimeInWebIE,
+                    ie=AnimeInWebIE.ie_key(),
                     video_id=data.get('id'),
                     video_title=data.get('title'),
                 )

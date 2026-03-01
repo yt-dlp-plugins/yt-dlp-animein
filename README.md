@@ -86,14 +86,14 @@ Pilih resolusi berdasarkan tinggi, otomatis ambil yang terbaik:
     mpv --ytdl-raw-options-append='ignore-no-formats-error=' 'https://animeinweb.com/anime/426'
 
 ## **❓ FAQ (Frequently Asked "Gimana nih?!")**
-Q: Kok masih error "No video formats found"?
+Q: Kok masih error "No video formats found"?    
 A: [Report bug langsung di sini](https://github.com/Asep5K/wibu-downloader/issues/new) (Kasih URL yang error + log yt-dlp/mpv)
 
 
-Q: Episode urutannya aneh?
+Q: Episode urutannya aneh?  
 A: Udah gw reverse biar episode 1 dulu, kalo masih aneh ya namanya juga API-nya random
 
-Q: Bisa download batch semua episode?
+Q: Bisa download batch semua episode?   
 A: Bisa! Tapi siapin storage & kuota yang banyak ya
 
 ## **Educational Purpose Only**
