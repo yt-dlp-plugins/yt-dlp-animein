@@ -7,7 +7,7 @@ packages = ["yt_dlp_plugins"]
 
 [project]
 name = "wibu-downloader"
-version = "2.1.4"
+version = "2.2.4"
 requires-python = ">=3.11"
 readme = "README.md"
 description = "yt-dlp extractor for animeinweb.com"
