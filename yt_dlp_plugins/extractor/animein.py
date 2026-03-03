@@ -1,13 +1,16 @@
 import itertools
+import math
 
 from yt_dlp.extractor.common import InfoExtractor, SearchInfoExtractor
 from yt_dlp.utils import (
+    LazyList,
     float_or_none,
     int_or_none,
     parse_resolution,
     random_user_agent,
     str_to_int,
     traverse_obj,
+    url_or_none,
     urljoin,
 )
 
@@ -19,11 +22,11 @@ class AnimeIn(InfoExtractor):
     def _call_api(
         self,
         base_url='https://animeinweb.com',
-        path_url: str | None = None,
-        video_id: str | None = None,
-        query: dict | None = None,
-        fatal: bool = True,
-        note: str = 'Downloading ANIMEIN API JSON',
+        path_url=None,
+        video_id=None,
+        query=None,
+        fatal=True,
+        note='Downloading ANIMEIN API JSON',
     ):
         """Buat manggil api animein"""
         return self._download_json(urljoin(base_url, path_url), video_id=video_id, query=query, note=note, fatal=fatal)
@@ -52,17 +55,15 @@ class AnimeIn(InfoExtractor):
         quality_str = stream_data.get('quality', '')
         stream_url = stream_data.get('link')
         height, format_id = self._parse_quality_string(quality_str)
-        if (stream_type != 'direct'
-            or not stream_url
-                or not height):
+        if stream_type != 'direct' or not stream_url or not height:
             return {}
         return {
-            'url': stream_url,
+            'url': url_or_none(stream_url),
             'format_id': format_id,
             'quality': quality_str,
             'height': height,
             'width': int_or_none((height * 16) / 9),
-            'filesize': int_or_none(self._parse_filesize(stream_data.get('key_file_size'))),
+            'filesize': int_or_none(self._parse_filesize(stream_data.get('key_file_size'), stream_url)),
             'http_headers': {
                 'User-Agent': random_user_agent(),
                 'Accept-Language': 'en-US,en;q=0.8',
@@ -78,12 +79,10 @@ class AnimeIn(InfoExtractor):
 
     def _extract_formats(self, episode_id: str, episode: str) -> list[dict]:
         streams = self._get_episode_info(episode_id, episode)
-        formats = []
         for stream in streams:
             format_entry = self._build_format_entry(stream)
             if format_entry:
-                formats.append(format_entry)
-        return formats
+                yield format_entry
 
     @staticmethod
     def _get_thumbnail(base_url: str = 'https://api.animein.net', image_url: str | None = None) -> str | None:
@@ -97,8 +96,7 @@ class AnimeIn(InfoExtractor):
             return urljoin(base_url, image_url)
         return None
 
-    @staticmethod
-    def _parse_filesize(size_str: str | None = None) -> int | None:  # TODO: remove
+    def _parse_filesize(self, size_str: str | None = None, url: str | None = None) -> int | None:  # TODO: remove
         """Buat nyari filezie ntah mb ntah gb"""
         try:
             return str_to_int(float_or_none(size_str) * 1024**2) if size_str else None
@@ -111,27 +109,32 @@ class AnimeIn(InfoExtractor):
         return traverse_obj(metadata_dict, ('data', 'movie'))
 
     def _extract_all_episodes(self, anime_id: str) -> list[str, dict] | None:
-        for page_num in itertools.count(0):
+        last_page_index = self._get_the_last_page(anime_id)
+        for page_num in range(last_page_index, -1, -1): # start, step, stop
             episodes = self._fetch_episode_list_page(anime_id, page_num)
             if not episodes:
                 break
-            yield from episodes
+            yield from reversed(episodes)
+
+    def _get_the_last_page(self, anime_id: str) -> int:
+        data_eps = self._call_api(path_url=f'/api/proxy/3/2/movie/episode/{anime_id}', video_id=anime_id)
+        last_eps = traverse_obj(data_eps, ('data', 'episode', 0, 'index'))
+        last_page_index = math.ceil(int(last_eps) / 30) - 1
+        return max(last_page_index, 0)
 
     def _fetch_episode_list_page(self, anime_id: str, page_num: int = 0) -> list[str, dict] | None:
         response = self._call_api(
             path_url=f'/api/proxy/3/2/movie/episode/{anime_id}',
             video_id=anime_id,
             query={'page': page_num},
-            note=f'Downloading page {page_num}',
-        )
+            note=f'Downloading page {page_num}')
         return traverse_obj(response, ('data', 'episode'))
 
     def _search_anime(self, query: str, page_num: str = 0) -> list[str, dict] | None:
         response = self._call_api(
             path_url='/api/proxy/3/2/explore/movie',
             video_id=query,
-            query={'page': page_num, 'sort': 'views', 'keyword': query},
-        )
+            query={'page': page_num, 'sort': 'views', 'keyword': query},)
         return traverse_obj(response, ('data', 'movie'))
 
 
@@ -141,57 +144,66 @@ class AnimeInWebIE(AnimeIn):  # TODO: toda todo tok tell gatel
     IE_NAME = 'animeinweb'
     _VALID_URL = r'https?://animeinweb\.com/anime/(?P<id>\d+)'
 
-    def _build_episode_entry(self, episode_data: dict, anime_data: dict) -> dict[str, list]:
+    def _build_episode_entry(self, episode_data: dict, anime_data: dict) -> dict[str, list] | None:
         episode_id = episode_data.get('id')
         episode_title = episode_data.get('title', '')
         episode_index = episode_data.get('index')
         title = anime_data.get('title')
-        formats = self._extract_formats(episode_id, episode_title)
+        formats = LazyList(self._extract_formats(episode_id, episode_title))
         if not formats:
             self.report_warning(f'No formats found for episode {episode_index}')
             return {}
         return {
             'id': episode_id,
             'title': f'{title} {episode_title}',
-            'alt_title': anime_data.get('synonyms'),
             'series': title,
-            'description': anime_data.get('synopsis'),
-            'view_count': int_or_none(anime_data.get('views')),
             'playlist_title': title,
-            'release_year': int_or_none(anime_data.get('year')),
             'media_type': 'episode',
             'ext': 'mp4',
-            'categories': [x.strip() for x in anime_data.get('genre').split(',')],
             'episode_number': int_or_none(episode_index),
-            'thumbnail': self._get_thumbnail(image_url=episode_data.get('image')),
+            'thumbnail': url_or_none(self._get_thumbnail(image_url=episode_data.get('image'))),
             'formats': formats,
-            # TAMBAHAN SENDIRI BUKAN METADATA RESMI yt-dlp
-            'image_poster': anime_data.get('image_poster'),
-            'image_cover': anime_data.get('image_cover'),
+            **traverse_obj(
+                anime_data,
+                {
+                    'series_id': ('id'),
+                    'alt_title': ('synonyms'),
+                    'view_count': ('views', {int_or_none}),
+                    'release_year': ('year', {int_or_none}),
+                    # 'categories': [c.strip() for c in ('genre').split(',')],
+                },
+            ),
         }
 
-    def _real_extract(self, url: str) -> dict[list]:
-        anime_id = self._match_id(url)
-        anime_data = self._get_anime_info(anime_id)
-        entries = []
+    def _entries(self, anime_id, anime_data):
         for episode_data in self._extract_all_episodes(anime_id):
             entry = self._build_episode_entry(episode_data, anime_data)
             if not entry:
                 continue
-            entry['series_id'] = anime_id
-            entries.append(entry)
-        return {
-            '_type': 'playlist',
-            'id': anime_id,
-            'title': anime_data['title'],
-            'entries': reversed(entries),
-        }
+            yield entry
+
+    def _real_extract(self, url: str) -> dict[list]:
+        anime_id = self._match_id(url)
+        anime_data = self._get_anime_info(anime_id)
+        return self.playlist_result(
+            entries=self._entries(anime_id, anime_data),
+            playlist_id=anime_id,
+            **traverse_obj(
+                anime_data,
+                {
+                    'title': ('title'),
+                    'description': ('synopsis'),
+                    'image_poster': ('image_poster'),
+                    'image_cover': ('image_cover'),
+                },
+            ),
+        )
 
 
 class AnimeInSearchIE(SearchInfoExtractor, AnimeInWebIE):
     """KALO NGEBUG AJA SENDIRI"""
 
-    IE_DESC = 'animein web Search'
+    IE_DESC = 'animeinweb Search'
     IE_NAME = 'animein:search'
     _SEARCH_KEY = 'animein'
 
