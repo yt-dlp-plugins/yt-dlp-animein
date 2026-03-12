@@ -1,5 +1,21 @@
 # Changelog
 
+## [2.2.6] - 2026-03-12
+
+### Fixed
+- **Menghapus pengecekan formats agar benar-benar menjadi Lazy**
+  - Memisahkan setiap extractor ke dalam file terpisah untuk maintainability
+
+### Removed
+- Penghapusan sistem pemilihan formats menggunakan kode
+
+### Changed
+- **Bump version** dari 2.2.5 ke 2.2.6 (biar makin wuz wuz wuz)
+
+---
+
+## [2.2.5] - 2026-03-06
+
 ### Features
 - **Penambahan fitur caching** 🚀
   - Sebelumnya: setiap request (play/download/cek format) harus download info JSON dari server → boros request & lama
