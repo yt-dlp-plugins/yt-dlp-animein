@@ -40,35 +40,6 @@
     yt-dlp --ignore-no-formats-error 'https://animeinweb.com/anime/1280' --output '%(playlist_title)s/%(title)s.%(ext)s'
 
 
-## 🎯 **Pemilihan Resolusi**
-
-### **Cara 1: Pake Filter (Rekomendasi)**
-Pilih resolusi berdasarkan tinggi, otomatis ambil yang terbaik:
-
-    # Maksimal 1080p (kalo ada)
-    yt-dlp -f '[height<=1080]' <URL>
-
-    # Maksimal 720p (hemat kuota)
-    yt-dlp -f '[height<=720]' <URL>
-
-### **Cara 2: Pake Format ID (Kontrol Manual)**
-| Kode | Resolusi | Cocok buat |
-|------|----------|------------|
-| `18` | 360p     | Kuota tipis, streaming lancar |
-| `35` | 480p     | DVD quality, middle ground |
-| `22` | 720p     | HD, keseimbangan kualitas & ukuran |
-| `37` | 1080p    | Full HD, buat yang mau bening |
-
-    # Ambil resolusi 720p aja (kalo gak ada ya error)
-    yt-dlp -f 22 <URL>
-
-    # Prioritaskan 1080p, kalo gak ada turun ke 720p, terakhir 480p
-    yt-dlp -f 37/22/35 <URL>
-
-    # Ambil yang terbaik (biasanya 1080p)
-    yt-dlp -f best <URL>
-
-
 ## **TONTON LANGSUNG MENGGUNAKAN [MPV](https://github.com/mpv-player/mpv)**
 ### **Contoh penggunaan:**
 
