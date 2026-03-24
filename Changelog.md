@@ -1,5 +1,11 @@
 # Changelog
 
+## [2.2.7] - 2026-03-24
+
+### Fixed ?
+- **Tidak ada perubahan spesifik**
+  - Hanya merapihkan sedikit kode saja
+
 ## [2.2.6] - 2026-03-12
 
 ### Fixed

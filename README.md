@@ -1,10 +1,4 @@
 <div align="center">
-<!--makasih bang gemini--->
-    <!-- <img src="./assets/logo.png" -->
-    <img src="https://raw.githubusercontent.com/Asep5K/wibu-downloader/main/assets/logo.png"
-       width="250"
-       alt="wibu-downloader logo"
-       style="border-radius: 30px; box-shadow: 0 4px 8px rgba(0,0,0,0.2);">
 
 [![Python 3.11+](https://img.shields.io/badge/Python-3.11+-blue?logo=python?&style=for-the-badge)](https://python.org "Python blyad")
 [![PyPI](https://img.shields.io/badge/-PyPI-blue.svg?logo=pypi&labelColor=555555&style=for-the-badge)](https://pypi.org/project/wibu-downloader/ "PyPI")
@@ -25,7 +19,9 @@
 
 **Atau**
 
-    python -m pip install -U https://github.com/Asep5K/wibu-downloader/archive/main.zip
+    python -m pip install -U https://codeberg.org/Asep5K/wibu-downloader/archive/main.zip
+
+---
 
 ## **Cara penggunaan**
 ### ⚠️ Sangat disarankan menggunakan `--output '%(playlist_title)s/%(title)s.%(ext)s'`
@@ -39,6 +35,7 @@
     # Skip episode yang error
     yt-dlp --ignore-no-formats-error 'https://animeinweb.com/anime/1280' --output '%(playlist_title)s/%(title)s.%(ext)s'
 
+---
 
 ## **TONTON LANGSUNG MENGGUNAKAN [MPV](https://github.com/mpv-player/mpv)**
 ### **Contoh penggunaan:**
@@ -55,17 +52,7 @@
 ### **Gunakan flag  `--ytdl-raw-options-append='ignore-no-formats-error='`**
 
     mpv --ytdl-raw-options-append='ignore-no-formats-error=' 'https://animeinweb.com/anime/426'
-
-## **❓ FAQ (Frequently Asked "Gimana nih?!")**
-Q: Kok masih error "No video formats found"?    
-A: [Report bug langsung di sini](https://github.com/Asep5K/wibu-downloader/issues/new) (Kasih URL yang error + log yt-dlp/mpv)
-
-
-Q: Episode urutannya aneh?  
-A: Udah gw reverse biar episode 1 dulu, kalo masih aneh ya namanya juga API-nya random
-
-Q: Bisa download batch semua episode?   
-A: Bisa! Tapi siapin storage & kuota yang banyak ya
+---
 
 ## **Educational Purpose Only**
 Code ini dibuat untuk pembelajaran:
@@ -74,4 +61,3 @@ Code ini dibuat untuk pembelajaran:
 - Video format extraction
 - Web technology study
 
-## **Profit! (for you, not for me 😂)**

@@ -7,30 +7,49 @@ packages = ["yt_dlp_plugins"]
 
 [project]
 name = "wibu-downloader"
-version = "2.2.6"
+dynamic = ["version"]
 requires-python = ">=3.11"
 readme = "README.md"
 description = "yt-dlp extractor for animeinweb.com"
+
 authors = [
     { name = "Asep5K" },
-    { email = "210173402+Asep5K@users.noreply.github.com" }
+    { email = " asep5k@noreply.codeberg.org" }
 ]
+
 keywords = [
     "yt-dlp",
     "yt-dlp plugins",
     "custom extractor",
     "animein",
 ]
-dependencies = [
-    "yt-dlp>=2025.12.08",
+
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13", # I only tested in 3.13 and 3.14
+    "Programming Language :: Python :: 3.14",
+    "Programming Language :: Python :: Implementation :: CPython",
+    "Programming Language :: Python :: Implementation :: PyPy",
 ]
+
+dependencies = [
+    "yt-dlp[default]>=2025.12.08",
+]
+
 license = "GPL-3.0-or-later"
 license-files = ["LICENSE"]
 
+[tool.hatch.version]
+path = "yt_dlp_plugins/extractor/animein/version.py"
+pattern = "__version__ = '(?P<version>[^']+)'"
+
 [project.urls]
-Homepage = "https://github.com/Asep5K/wibu-downloader"
-Repository = "https://github.com/Asep5K/wibu-downloader"
-Tracker = "https://github.com/Asep5K/wibu-downloader/issues"
+Homepage = "https://codeberg.org/Asep5K/wibu-downloader"
+Repository = "https://codeberg.org/Asep5K/wibu-downloader.git"
+Tracker = "https://codeberg.org/Asep5K/wibu-downloader/issues"
 
 [project.optional-dependencies]
 static-analysis = [
@@ -104,6 +123,7 @@ ignore = [
     "RUF012",  # mutable-class-default
     "RUF100",  # unused-noqa (flake8 has slightly different behavior)
 ]
+
 select = [
     "E",      # pycodestyle Error
     "W",      # pycodestyle Warning
