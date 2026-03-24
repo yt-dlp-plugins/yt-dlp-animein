@@ -2,6 +2,7 @@ import math
 
 from yt_dlp.extractor.common import InfoExtractor
 from yt_dlp.utils import (
+    ExtractorError,
     parse_resolution,
     traverse_obj,
     urljoin,
@@ -18,7 +19,7 @@ class AnimeinBaseIE(InfoExtractor):
         """Buat manggil api animein"""
         base_url = 'https://animeinweb.com'
         full_url = urljoin(base_url, path_url)
-        default_note = 'Downloading ANIMEIN API JSON'
+        default_note = 'Downloading JSON metadata'
         return self._download_json(full_url, video_id=video_id, query=query, note=note or default_note, fatal=fatal, **kwargs)
 
     def _get_episode_info(self, episode_id: str, episode: str) -> list[dict[str, any]] | None:
@@ -33,25 +34,27 @@ class AnimeinBaseIE(InfoExtractor):
             self.cache.store('animein', cache_file, episode_info)
         return traverse_obj(episode_info, ('data', 'server'))
 
-    def _build_format_entry(self, stream_data: dict) -> dict[str, any]:
-        stream_type = stream_data.get('type').lower()
-        quality_str = stream_data.get('quality', '')
+    def _build_format_entry(self, stream_data: dict[str, any]) -> dict[str, any]:
+        stream_type = stream_data.get('type')
+        quality_str = stream_data.get('quality', 'Unknown')
         stream_url = stream_data.get('link')
-        if stream_type != 'direct' or not stream_url:
-            return {}
         return {
             'url': stream_url,
+            'format_id': quality_str.replace('p', ''),
+            'format_note': f'{quality_str} {stream_type}',
             'quality': quality_str,
             **parse_resolution(quality_str),
             'http_headers': {'Referer': 'https://animeinweb.com/'},
+            'filesize': traverse_obj(stream_data,
+                                     ('key_file_size', {lambda f: int(float(f) * 1024**2)})),
         }
 
     def _extract_formats(self, episode_id: str, episode: str):
         streams = self._get_episode_info(episode_id, episode)
         for stream in streams:
-            format_entry = self._build_format_entry(stream)
-            if format_entry:
-                yield format_entry
+            if stream['type'] != 'direct':
+                continue
+            yield self._build_format_entry(stream)
 
     @staticmethod
     def _get_thumbnail(base_url: str = 'https://api.animein.net', image_url: str | None = None) -> str | None:
@@ -70,18 +73,18 @@ class AnimeinBaseIE(InfoExtractor):
         metadata = self._call_api(path_url=f'/api/proxy/3/2/movie/detail/{anime_id}', video_id=anime_id, note='Downloading anime info JSON')
         return traverse_obj(metadata, ('data', 'movie'))
 
-    def _get_the_last_page(self, anime_id: str) -> int:
+    def _get_the_last_page(self, anime_id: str, eps_per_page: int = 30) -> int:
         data_eps = self._call_api(path_url=f'/api/proxy/3/2/movie/episode/{anime_id}', video_id=anime_id, note='Getting last page')
         episodes = traverse_obj(data_eps, ('data', 'episode'))
         if not episodes:
-            self.raise_no_formats(msg=f'Tidak ada episode untuk id {anime_id} (mungkin belum rilis atau invalid ID)', expected=True)
+            raise ExtractorError(msg=f'Tidak ada episode untuk id {anime_id} (mungkin belum rilis atau invalid ID)', expected=True)
         last_eps = traverse_obj(episodes, (0, 'index'))
         try:
             self.to_screen(f'Total episode: {last_eps}')
-            last_page_index = math.ceil(int(last_eps) / 30) - 1
+            last_page_index = math.ceil(int(last_eps) / eps_per_page) - 1
             return max(last_page_index, 0)
         except (TypeError, ValueError) as e:
-            self.raise_no_formats(msg=f'Gagal parsing episode index: {last_eps!r} {e}', expected=True)
+            raise ExtractorError(msg=f'Gagal parsing episode index: {last_eps!r} {e}', expected=True)
 
     def _fetch_episode_list_page(self, anime_id: str, page_num: int = 0) -> dict[str, any] | None:
         self.write_debug(f'Fetching page {page_num} for anime {anime_id}')
@@ -92,7 +95,7 @@ class AnimeinBaseIE(InfoExtractor):
             self.cache.store('animein', cache_file, response)
         return traverse_obj(response, ('data', 'episode'))
 
-    def _search_anime(self, query: str, page_num: str = 0) -> dict[str, any] | None:
+    def _search_anime(self, query: str, page_num: int = 0) -> dict[str, any] | None:
         response = self._call_api(
             path_url='/api/proxy/3/2/explore/movie',
             video_id=query,

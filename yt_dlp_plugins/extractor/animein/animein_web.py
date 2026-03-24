@@ -44,12 +44,18 @@ class AnimeinWebIE(AnimeinBaseIE):
 
     def _entries(self, anime_id: str, anime_data):
         last_page_index = self._get_the_last_page(anime_id)
-        for page_num in range(last_page_index, -1, -1):  # start, step, stop
+        for page_num in range(last_page_index, -1, -1):
             episodes = self._fetch_episode_list_page(anime_id, page_num)
+
             if not episodes:
-                continue
+                continue  # Halaman ini kosong? Skip, cari di halaman berikutnya
+
+            found_any = True
             for episode in reversed(episodes):
                 yield self._build_episode_entry(episode, anime_data)
+
+        if not found_any:  # Kalau sampai halaman 0 pun gak ada yang nyangkut, ya eerrrroorrr
+            self.raise_no_formats('No episodes found', expected=True)
 
     def _real_extract(self, url: str) -> dict[str, any]:
         anime_id = self._match_id(url)
