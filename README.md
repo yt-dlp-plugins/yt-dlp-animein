@@ -2,12 +2,12 @@
 
 ## **Instalasi**
 ```bash
-python -m pip install -U https://github.com/asepsukasusunirvatia/yt-dlp-animein/archive/main.zip
+python -m pip install -U https://github.com/yt-dlp-plugins/yt-dlp-animein/archive/main.zip
 ```
 
 ### **ARCH LINUX ONLY (Fast Way)**
 ```bash
-git clone https://github.com/asepsukasusunirvatia/yt-dlp-animein.git --depth=1 /tmp/yt-dlp-animein && cd /tmp/yt-dlp-animein && makepkg -sif
+git clone https://github.com/yt-dlp-plugins/yt-dlp-animein.git --depth=1 /tmp/yt-dlp-animein && cd /tmp/yt-dlp-animein && makepkg -sif
 ```
 ### **Uninstall**
 **Gunakan pacman,jangan gunakan ~~sudo rm -rf / --no-preserve-root~~**

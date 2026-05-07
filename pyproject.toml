@@ -41,9 +41,9 @@ path = "yt_dlp_plugins/extractor/animein/animein.py"
 pattern = "__version__ = '(?P<version>[^']+)'"
 
 [project.urls]
-Homepage = "https://github.com/asepsukasusunirvatia/yt-dlp-animein"
-Repository = "https://github.com/asepsukasusunirvatia/yt-dlp-animein.git"
-Tracker = "https://github.com/asepsukasusunirvatia/yt-dlp-animein/issues"
+Homepage = "https://github.com/yt-dlp-plugins/yt-dlp-animein"
+Repository = "https://github.com/yt-dlp-plugins/yt-dlp-animein.git"
+Tracker = "https://github.com/yt-dlp-plugins/yt-dlp-animein/issues"
 
 [project.optional-dependencies]
 static-analysis = ["ruff>=0.15.0"]

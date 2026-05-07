@@ -1,6 +1,6 @@
 # Maintainer: asepsukasusunirvatia <asepdev.git@gmail.com>
 pkgname=yt-dlp-animein
-pkgver=2.2.8
+pkgver=2.2.9
 pkgrel=1
 pkgdesc='yt-dlp extractor for animeinweb.com'
 url='https://github.com/asepsukasusunirvatia/yt-dlp-animein'
