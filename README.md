@@ -1,63 +1,65 @@
-<div align="center">
+## **Plugin ekstraktor [yt-dlp](https://github.com/yt-dlp/yt-dlp) untuk [animeinweb](https://animeinweb.com/). Mendukung pengunduhan episode tunggal, playlist lengkap, dan fitur pencarian langsung dari terminal.**
 
-[![Python 3.11+](https://img.shields.io/badge/Python-3.11+-blue?logo=python?&style=for-the-badge)](https://python.org "Python blyad")
-[![PyPI](https://img.shields.io/badge/-PyPI-blue.svg?logo=pypi&labelColor=555555&style=for-the-badge)](https://pypi.org/project/wibu-downloader/ "PyPI")
-[![yt-dlp](https://img.shields.io/badge/yt--dlp-2025.12.08+-red?&style=for-the-badge)](https://github.com/yt-dlp/yt-dlp "yt-dlp")
-[![License](https://img.shields.io/badge/License-GPLv3-green?&style=for-the-badge)](LICENSE "LICENSE")
-[![Issues](https://img.shields.io/github/issues/Asep5K/asepplugins?color=orange&style=for-the-badge)](https://github.com/Asep5K/asepplugins/issues "issues")
-[![Piracy Level](https://img.shields.io/badge/Piracy-100%25-black?label=piracy&style=for-the-badge)](https://en.wikipedia.org/wiki/Piracy "Bajakan njir")
-[![DMCA Shield](https://img.shields.io/badge/DMCA-Proof-red?label=dmca&style=for-the-badge)](https://www.dmca.com/ "DMCA")
-
-# **wibu-downloader, custom extractor yt-dlp**
-## **Custom extractor untuk mendownload/menonton anime**
-</div>
-
-## **INSTALASI**
-**Via PyPI**
-
-    pip install -U wibu-downloader
-
-**Atau**
-
-    python -m pip install -U https://codeberg.org/Asep5K/wibu-downloader/archive/main.zip
-
+## **Instalasi**
+```bash
+python -m pip install -U https://github.com/asepsukasusunirvatia/yt-dlp-animein/archive/main.zip
+```
 ---
 
 ## **Cara penggunaan**
-### ⚠️ Sangat disarankan menggunakan `--output '%(playlist_title)s/%(title)s.%(ext)s'`
+**Menggunakan kata kunci (Search):**
+```bash
+yt-dlp "animein:Kaifuku Jutsushi" -o "%(playlist_title)s/%(title)s.%(ext)s"
+```
 
-    # Download anime (pake keyword)
-    yt-dlp 'animein:Kaifuku Jutsushi no Yarinaoshi' --output '%(playlist_title)s/%(title)s.%(ext)s'
+**Menggunakan URL langsung:**
+```bash
+yt-dlp "https://animeinweb.com/anime/1280" -o "%(playlist_title)s/%(title)s.%(ext)s"
+```
 
-    # Download pake link langsung
-    yt-dlp 'https://animeinweb.com/anime/1280' --output '%(playlist_title)s/%(title)s.%(ext)s'
-
-    # Skip episode yang error
-    yt-dlp --ignore-no-formats-error 'https://animeinweb.com/anime/1280' --output '%(playlist_title)s/%(title)s.%(ext)s'
-
+**Mengabaikan episode yang tidak memiliki format video:**
+```bash
+yt-dlp --ignore-no-formats-error "https://animeinweb.com/anime/1280"
+```
 ---
 
-## **TONTON LANGSUNG MENGGUNAKAN [MPV](https://github.com/mpv-player/mpv)**
-### **Contoh penggunaan:**
+## **Streaming dengan [MPV](https://github.com/mpv-player/mpv)**
+**Kamu bisa menonton langsung tanpa perlu mengunduh file:**
+```bash
+mpv --referrer="https://animeinweb.com/" "https://animeinweb.com/anime/4347"
+```
+### **Solusi Error `"No video formats found!"`**
+**Jika menemukan error tersebut, gunakan flag tambahan berikut:**
+```bash
+mpv "https://animeinweb.com/anime/426" --ytdl-raw-options-append="ignore-no-formats-error=" --referrer="https://animeinweb.com/"
+```
+---
+## **Tips: Automasi Referrer di mpv.conf**
+**Tambahkan ini ke config MPV kamu agar tidak perlu mengetik referrer setiap saat:**
+```conf
+[animein]
+profile-cond=path:find('storages%.animein%.net')
+referrer="https://animeinweb.com/"
 
-    mpv --referrer=https://animeinweb.com/ 'https://animeinweb.com/anime/4347'
-
-### **Error `"No video formats found!"`**
-
-    [ytdl_hook] ERROR: [animeinweb] 7138: No video formats found!; please report this issue on  https://github.com/yt-dlp/yt-dlp/issues?q= , filling out the appropriate issue template. Confirm you are on the latest version using  yt-dlp -U
-    [ytdl_hook] youtube-dl failed: unexpected error occurred
-    [cplayer] finished playback, unrecognized file format (reason 4)
-    [cplayer] Failed to recognize file format.
-
-### **Gunakan flag  `--ytdl-raw-options-append='ignore-no-formats-error='`**
-
-    mpv --ytdl-raw-options-append='ignore-no-formats-error=' 'https://animeinweb.com/anime/426'
+# opsional auto skip format yang error
+ytdl-raw-options-append="ignore-no-formats-error="
+```
+**Cara Cepat (Copy-Paste ke Terminal):**
+```bash
+tee -a <<EOF >> ~/.config/mpv/mpv.conf
+[animein]
+profile-cond=path:find('storages%.animein%.net')
+referrer="https://animeinweb.com/"
+ytdl-raw-options-append="ignore-no-formats-error="
+EOF
+```
 ---
 
-## **Educational Purpose Only**
-Code ini dibuat untuk pembelajaran:
-- HTTP requests handling
-- JSON parsing
-- Video format extraction
-- Web technology study
+## **Dukung Proyek Ini ☕**
+**Kalau ekstraktor ini ngebantu kamu hemat waktu, pertimbangkan buat traktir kopi biar saya semangat maintenance terus:** <!--tapi boong-->
 
+<div align="left">
+
+[![Trakteer](https://img.shields.io/badge/Trakteer-asep5k-red?style=for-the-badge&logo=trakteer&logoColor=white "Trakteer")](https://trakteer.id/asep5k) [![PayPal](https://img.shields.io/badge/PayPal-Donate-blue?style=for-the-badge&logo=paypal "PayPal")](https://paypal.me/rezaoctavian496) [![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg "Ko-fi")](https://ko-fi.com/aspe)
+
+</div>
