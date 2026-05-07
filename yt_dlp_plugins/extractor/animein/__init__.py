@@ -1,9 +1,12 @@
-from .animein_episode import AnimeinEpisodeIE
-from .animein_search import AnimeinSearchIE
-from .animein_web import AnimeinWebIE
+from .animein import (
+    AnimeinEpisodeIE,
+    AnimeinPlaylistIE,
+    AnimeinSearchIE,
+)
 
-__all__ = [
-    'AnimeinEpisodeIE',
-    'AnimeinSearchIE',
-    'AnimeinWebIE',
-]
+for _cls in (
+    AnimeinEpisodeIE,
+    AnimeinPlaylistIE,
+    AnimeinSearchIE,
+):
+    _cls.__module__ = 'yt_dlp_plugins.extractor.animein'
