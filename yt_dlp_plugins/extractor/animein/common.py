@@ -1,4 +1,3 @@
-import math
 from collections.abc import Iterator
 from typing import Any
 
@@ -80,7 +79,7 @@ class AnimeinBaseIE(InfoExtractor):
     # ==========================================
     # 3. PROCESSING HELPERS
     # ==========================================
-    def _get_the_last_page(self, anime_id: str, eps_per_page: int = 30) -> tuple[int, list[dict[str, Any]]]:
+    def _get_the_last_page(self, anime_id: str, max_eps: int = 30) -> tuple[int, list[dict[str, Any]]]:
         data_eps = self._call_api(
             path=f'/api/proxy/3/2/movie/episode/{anime_id}',
             video_id=anime_id,
@@ -89,23 +88,18 @@ class AnimeinBaseIE(InfoExtractor):
 
         episodes = traverse_obj(data_eps, ('data', 'episode'), expected_type=list)
 
-        last_page_index = traverse_obj(
-            episodes,
-            (
-                0,
-                'index',
-                {lambda x: max(math.ceil(str_to_int(x) / eps_per_page) - 1, 0)},
-            ),
-        )
-        if last_page_index is None:
+        if not episodes:
             raise ExtractorError(
                 msg=f"Unable to find episodes for {anime_id!r}; check if it's released or the ID is correct",
                 expected=True,
             )
+        # index pasti ada jika episodes tidak kosong;
+        last_ep = str_to_int(episodes[0]['index'])
 
-        if last_page_index <= eps_per_page:
+        if last_ep <= max_eps:
             return 0, episodes
-        return last_page_index, episodes
+
+        return last_ep // max_eps, episodes
 
     @staticmethod
     def _format_thumbnail_url(p: str) -> str | None:
