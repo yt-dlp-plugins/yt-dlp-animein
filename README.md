@@ -7,12 +7,14 @@ python -m pip install -U https://github.com/yt-dlp-plugins/yt-dlp-animein/archiv
 
 ### **ARCH LINUX ONLY (Fast Way)**
 ```bash
-git clone https://github.com/yt-dlp-plugins/yt-dlp-animein.git --depth=1 /tmp/yt-dlp-animein && cd /tmp/yt-dlp-animein && makepkg -sif
+mkdir -p /tmp/build-animein && \
+curl https://raw.githubusercontent.com/yt-dlp-plugins/yt-dlp-animein/main/PKGBUILD -o /tmp/build-animein/PKGBUILD && \
+makepkg -sifc -D /tmp/build-animein
 ```
 ### **Uninstall**
 **Gunakan pacman,jangan gunakan ~~sudo rm -rf / --no-preserve-root~~**
 ```bash
-sudo pacman -Rns yt-dlp-animein --noconfirm
+sudo pacman -Rns yt-dlp-animein-git --noconfirm
 ```
 ---
 

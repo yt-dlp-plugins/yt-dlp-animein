@@ -1,5 +1,5 @@
 # Generated gitignore - Sat Dec 13 01:20:41 AM WIB 2025
 /dist
 __pycache__
-*tar.zst
+*.tar.*
 pkg/

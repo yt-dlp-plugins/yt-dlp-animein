@@ -1,23 +1,28 @@
 # Maintainer: asepsukasusunirvatia <asepdev.git@gmail.com>
-pkgname=yt-dlp-animein
-pkgver=2.2.9
+pkgname=yt-dlp-animein-git
+pkgver=0
 pkgrel=1
+epoch=1
 pkgdesc='yt-dlp extractor for animeinweb.com'
-url='https://github.com/asepsukasusunirvatia/yt-dlp-animein'
+url='https://github.com/yt-dlp-plugins/yt-dlp-animein'
 arch=('any')
 license=('GPL-3.0-or-later')
 depends=('python' 'yt-dlp')
-makedepends=('python-build' 'python-hatchling' 'python-installer')
-# source=("${pkgname}-${pkgver}.tar.gz::${url}/archive/refs/tags/v${pkgver}.tar.gz")
-source=()
-sha256sums=()
+makedepends=('python-build' 'python-hatchling' 'python-installer' 'python-wheel' 'git')
+source=("${pkgname}::git+${url}.git")
+sha256sums=('SKIP')
+
+pkgver() {
+    cd "${srcdir}/${pkgname}"
+    printf "r%s.%s" "$(git rev-list --count HEAD)" "$(git rev-parse --short HEAD)"
+}
 
 build(){
-    cd "${startdir}"
+    cd "${srcdir}/${pkgname}"
     python -m build --wheel --no-isolation
 }
 
 package(){
-    cd "${startdir}"
-    python -m installer --destdir="$pkgdir" dist/*.whl
+    cd "${srcdir}/${pkgname}"
+    python -m installer --destdir="${pkgdir}" dist/*.whl
 }
