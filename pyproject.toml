@@ -2,9 +2,6 @@
 requires = ["hatchling"]
 build-backend = "hatchling.build"
 
-[tool.hatch.build.targets.wheel]
-packages = ["yt_dlp_plugins"]
-
 [project]
 name = "yt-dlp-animein"
 dynamic = ["version"]
@@ -71,3 +68,9 @@ inline-quotes = "single"
 multiline-quotes = "single"
 docstring-quotes = "double"
 avoid-escape = false
+
+[tool.hatch.build.targets.wheel]
+packages = ["yt_dlp_plugins"]
+
+[tool.hatch.build.targets.sdist]
+exclude = ["/.editorconfig", "PKGBUILD", "/.github"]
