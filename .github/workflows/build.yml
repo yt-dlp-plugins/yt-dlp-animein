@@ -26,7 +26,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.10'
+          python-version: '3.12'
 
       - name: Build distributions
         run: |
@@ -61,7 +61,7 @@ jobs:
       - name: Rename and Update Checksum
         run: |
           cd dist
-          rm SHA256SUMS
+          rm -f SHA256SUMS
           mv *.whl yt_dlp_animein_latest.whl
           mv *.tar.gz yt_dlp_animein_latest.tar.gz
           sha256sum * > SHA256SUMS
@@ -72,6 +72,7 @@ jobs:
           tag_name: latest
           name: Latest Build
           prerelease: true
+          make_latest: false
           files: dist/*
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
