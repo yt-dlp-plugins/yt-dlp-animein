@@ -149,7 +149,6 @@ class AnimeinSearchIE(SearchInfoExtractor, Animein):
 
     def _search_results(self, query: str) -> Iterator[dict[str, Any]]:
         for page_num in itertools.count(0):
-
             if not (anime_list := self._search_anime(query, page_num)):
                 if page_num == 0:
                     """Error, jika page == 0 dan tidak menemukan daftar anime,

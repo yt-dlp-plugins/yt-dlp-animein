@@ -18,7 +18,6 @@ class AnimeinBaseIE(InfoExtractor):
     # 1. KONFIGURASI KELAS (HEADER)
     # ==========================================
     IE_NAME = 'animein'
-    _VALID_URL = False
     ANIMEIN_BASE_URL_RE = r'https://animeinweb\.com/anime/%s'
     BASE_URL = 'https://animeinweb.com/'  # || https://xyz-api.animein.net
     _HEADERS = {'x-proxy-secret': 'animein-secure-proxy-key-123'}
@@ -106,7 +105,7 @@ class AnimeinBaseIE(InfoExtractor):
         if 'img1.ak.crunchyroll.com' in p:
             return p if p.endswith('_full.jpg') else p + '_full.jpg'
         if p.startswith(('/assets', '/')):
-            return urljoin('https://animein.net', p)
+            return urljoin('https://xyz-api.animein.net', p)
         return p
 
     def _yield_formats(self, episode_id: str, episode: str) -> Iterator[dict[str, any]]:
@@ -141,12 +140,17 @@ class AnimeinBaseIE(InfoExtractor):
             'ext': 'mp4',
             'formats': LazyList(self._yield_formats(episode_id, episode_title)),
             'episode_number': str_to_int(episode_data.get('index')),
-            'thumbnail': self._format_thumbnail_url(episode_data.get('image')),
             'series_id': anime_data.get('id'),
             'alt_title': anime_data.get('synonyms'),
             'view_count': str_to_int(anime_data.get('views')),
             'release_year': str_to_int(anime_data.get('year')),
             'categories': [c.strip() for c in anime_data.get('categories', '').split(',') if c],
+            'thumbnails': [
+                {
+                    'url': self._format_thumbnail_url(episode_data.get('image')),
+                    'http_headers': {'referer': self.BASE_URL},
+                }
+            ],
         }
 
     def _yield_entries(self, anime_id: str, anime_data: dict) -> Iterator[dict[str, str]]:
