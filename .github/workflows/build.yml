@@ -62,8 +62,8 @@ jobs:
         run: |
           cd dist
           rm -f SHA256SUMS
-          mv *.whl yt_dlp_animein_latest.whl
-          mv *.tar.gz yt_dlp_animein_latest.tar.gz
+          mv *.whl yt_dlp_animein-0.0.0-py3-none-any.whl
+          mv *.tar.gz yt_dlp_animein-0.0.0.tar.gz
           sha256sum * > SHA256SUMS
 
       - name: Create Nightly Release
