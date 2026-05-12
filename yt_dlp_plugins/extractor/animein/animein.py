@@ -1,15 +1,10 @@
-__version__ = '2.2.10'
+__version__ = '2.2.11'
 
 import itertools
 from typing import Any
 from collections.abc import Iterator
 from yt_dlp.extractor.common import SearchInfoExtractor
-from yt_dlp.utils import (
-    ExtractorError,
-    str_or_none,
-    traverse_obj,
-    url_or_none,
-)
+from yt_dlp.utils import ExtractorError, str_to_int
 
 from .common import AnimeinBaseIE as Animein
 
@@ -54,16 +49,9 @@ class AnimeinPlaylistIE(Animein):
             entries=self._yield_entries(anime_id, anime_data),
             playlist_id=anime_id,
             display_id=anime_id,
-            **traverse_obj(
-                anime_data,
-                {
-                    'title': ('title', {str_or_none}),
-                    'description': ('synopsis', {str_or_none}),
-                    'image_poster': ('image_poster', {url_or_none}),
-                    'image_cover': ('image_cover', {url_or_none}),
-                    'view_count': ('views', {str_or_none}),
-                },
-            ),
+            playlist_title=anime_data.get('title'),
+            plalist_description=anime_data.get('synopsis'),
+            view_count=str_to_int(anime_data.get('views')),
         )
 
 
@@ -161,8 +149,6 @@ class AnimeinSearchIE(SearchInfoExtractor, Animein):
 
     def _search_results(self, query: str) -> Iterator[dict[str, Any]]:
         for page_num in itertools.count(0):
-            # anime_list = self._search_anime(query, page_num)
-
             if not (anime_list := self._search_anime(query, page_num)):
                 if page_num == 0:
                     """Error, jika page == 0 dan tidak menemukan daftar anime,

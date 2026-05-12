@@ -6,8 +6,6 @@ from yt_dlp.utils import (
     ExtractorError,
     LazyList,
     parse_resolution,
-    str_or_none,
-    traverse_obj,
     urljoin,
     str_to_int,
 )
@@ -20,9 +18,8 @@ class AnimeinBaseIE(InfoExtractor):
     # 1. KONFIGURASI KELAS (HEADER)
     # ==========================================
     IE_NAME = 'animein'
-    _VALID_URL = False
     ANIMEIN_BASE_URL_RE = r'https://animeinweb\.com/anime/%s'
-    BASE_URL = 'https://animeinweb.com/'
+    BASE_URL = 'https://animeinweb.com/'  # || https://xyz-api.animein.net
     _HEADERS = {'x-proxy-secret': 'animein-secure-proxy-key-123'}
 
     # ==========================================
@@ -45,7 +42,7 @@ class AnimeinBaseIE(InfoExtractor):
             video_id=anime_id,
             note='Downloading anime info JSON',
         )
-        return traverse_obj(metadata, ('data', 'movie'), expected_type=dict)
+        return metadata.get('data', {}).get('movie', [])
 
     def _search_anime(self, query: str, page_num: int = 0) -> list[dict[str, Any]] | None:
         response = self._call_api(
@@ -53,7 +50,7 @@ class AnimeinBaseIE(InfoExtractor):
             video_id=query,
             query={'page': page_num, 'sort': 'views', 'keyword': query},
         )
-        return traverse_obj(response, ('data', 'movie'), expected_type=list)
+        return response.get('data', {}).get('movie', [])
 
     def _get_episode_info(self, episode_id: str, episode: str) -> list[dict[str, Any]] | None:
         cache_file = f'{episode_id}_{episode}'
@@ -64,7 +61,7 @@ class AnimeinBaseIE(InfoExtractor):
                 note=f'Downloading info for {episode.lower()}',
             )
             self.cache.store('animein', cache_file, episode_info)
-        return traverse_obj(episode_info, ('data', 'server'), expected_type=list)
+        return episode_info.get('data', {}).get('server', [])
 
     def _fetch_episode_list_page(self, anime_id: str, page_num: int = 0) -> list[dict[str, Any]]:
         self.write_debug(f'Fetching page {page_num} for anime {anime_id}')
@@ -74,7 +71,7 @@ class AnimeinBaseIE(InfoExtractor):
             query={'page': page_num},
             note=f'Downloading page {page_num}',
         )
-        return traverse_obj(response, ('data', 'episode'), expected_type=list)
+        return response.get('data', {}).get('episode', [])
 
     # ==========================================
     # 3. PROCESSING HELPERS
@@ -86,7 +83,7 @@ class AnimeinBaseIE(InfoExtractor):
             note='Getting last page',
         )
 
-        episodes = traverse_obj(data_eps, ('data', 'episode'), expected_type=list)
+        episodes = data_eps.get('data', {}).get('episode', [])
 
         if not episodes:
             raise ExtractorError(
@@ -108,26 +105,23 @@ class AnimeinBaseIE(InfoExtractor):
         if 'img1.ak.crunchyroll.com' in p:
             return p if p.endswith('_full.jpg') else p + '_full.jpg'
         if p.startswith(('/assets', '/')):
-            return urljoin('https://animein.net', p)
+            return urljoin('https://xyz-api.animein.net', p)
         return p
 
     def _yield_formats(self, episode_id: str, episode: str) -> Iterator[dict[str, any]]:
         for stream in self._get_episode_info(episode_id, episode):
             if (stream_type := stream.get('type')) != 'direct':
                 continue
+            quality = stream.get('quality')
+            file_size_raw = stream.get('key_file_size')
             yield {
-                'http_headers': {'referer': self.BASE_URL.format('.com')},
-                **traverse_obj(
-                    stream,
-                    {
-                        'url': ('link', {str_or_none}),
-                        'format_note': ('quality', {lambda q: f'{q} {stream_type}'}),
-                        'format_id': ('quality', {lambda q: q.replace('p', '')}),
-                        'height': ('quality', {lambda q: parse_resolution(q)['height']}),
-                        'width': ('quality', {lambda q: int(q.replace('p', '')) * 16 // 9}),
-                        'filesize': ('key_file_size', {lambda f: int(float(f) * 1024**2)}),
-                    },
-                ),
+                'url': stream.get('link'),
+                'format_note': f'{quality} {stream_type}' if quality else stream_type,
+                'format_id': quality.replace('p', '') if quality else None,
+                'filesize': int(float(file_size_raw) * 1024**2) if file_size_raw else None,
+                'height': parse_resolution(quality).get('height') if quality else None,
+                'width': (int(quality.replace('p', '')) * 16 // 9) if (quality and 'p' in quality) else None,
+                'http_headers': {'referer': self.BASE_URL},
             }
 
     # ==========================================
@@ -145,29 +139,18 @@ class AnimeinBaseIE(InfoExtractor):
             'media_type': 'episode',
             'ext': 'mp4',
             'formats': LazyList(self._yield_formats(episode_id, episode_title)),
-            **traverse_obj(
-                episode_data,
+            'episode_number': str_to_int(episode_data.get('index')),
+            'series_id': anime_data.get('id'),
+            'alt_title': anime_data.get('synonyms'),
+            'view_count': str_to_int(anime_data.get('views')),
+            'release_year': str_to_int(anime_data.get('year')),
+            'categories': [c.strip() for c in anime_data.get('categories', '').split(',') if c],
+            'thumbnails': [
                 {
-                    'episode_number': ('index', {str_to_int}),
-                    'thumbnails': (
-                        'image',
-                        {lambda i: [{'url': self._format_thumbnail_url(i)}]},
-                    ),
-                },
-            ),
-            **traverse_obj(
-                anime_data,
-                {
-                    'series_id': ('id', {str_or_none}),
-                    'alt_title': ('synonyms', {str_or_none}),
-                    'view_count': ('views', {str_to_int}),
-                    'release_year': ('year', {str_to_int}),
-                    'categories': (
-                        'genre',
-                        {lambda g: [c.strip() for c in g.split(',')]},
-                    ),
-                },
-            ),
+                    'url': self._format_thumbnail_url(episode_data.get('image')),
+                    'http_headers': {'referer': self.BASE_URL},
+                }
+            ],
         }
 
     def _yield_entries(self, anime_id: str, anime_data: dict) -> Iterator[dict[str, str]]:

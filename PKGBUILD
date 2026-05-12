@@ -1,6 +1,6 @@
 # Maintainer: asepsukasusunirvatia <asepdev.git@gmail.com>
 pkgname=yt-dlp-animein-git
-pkgver=0
+pkgver=r44.de1b0c9
 pkgrel=1
 epoch=1
 pkgdesc='yt-dlp extractor for animeinweb.com'
@@ -25,4 +25,5 @@ build(){
 package(){
     cd "${srcdir}/${pkgname}"
     python -m installer --destdir="${pkgdir}" dist/*.whl
+    install -Dvm 644 'LICENSE' "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
 }

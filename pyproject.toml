@@ -73,4 +73,4 @@ avoid-escape = false
 packages = ["yt_dlp_plugins"]
 
 [tool.hatch.build.targets.sdist]
-exclude = ["/.editorconfig", "PKGBUILD", "/.github"]
+only-include = ["/yt_dlp_plugins", "/LICENSE", "/README.md", "/pyproject.toml"]
