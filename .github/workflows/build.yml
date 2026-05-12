@@ -4,7 +4,7 @@ on:
   push:
     branches: ["main"]
     paths-ignore:
-      - '**/**.md'
+      - '**/*.md'
       - '**/.gitignore'
       - '**/LICENSE'
       - '**/PKGBUILD'
@@ -12,37 +12,88 @@ on:
     tags:
       - 'v*'
 
+permissions: {}
+
 jobs:
   build:
     runs-on: ubuntu-latest
     permissions:
-        contents: write
+        contents: read
 
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v4
+
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.10'
 
-      - name: Build sdist & bdist
+      - name: Build distributions
         run: |
           pip install build
           python -m build
 
       - name: Generate SHA256SUMS
-        run: cd dist && sha256sum * | tee SHA256SUMS
+        run: |
+          cd dist
+          sha256sum * > SHA256SUMS
 
-      - name: Upload Artifact
+      - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
           name: animein-dist
           path: dist/
 
-      - name: Release
+  release_nightly:
+    needs: build
+    if: github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Download artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: animein-dist
+          path: dist
+
+      - name: Rename and Update Checksum
+        run: |
+          cd dist
+          rm SHA256SUMS
+          mv *.whl yt_dlp_animein_latest.whl
+          mv *.tar.gz yt_dlp_animein_latest.tar.gz
+          sha256sum * > SHA256SUMS
+
+      - name: Create Nightly Release
         uses: softprops/action-gh-release@v2
-        if: startsWith(github.ref, 'refs/tags/')
+        with:
+          tag_name: latest
+          name: Latest Build
+          prerelease: true
+          files: dist/*
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  release:
+    needs: build
+    if: startsWith(github.ref, 'refs/tags/')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Download artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: animein-dist
+          path: dist
+
+      - name: Create Versioned Release
+        uses: softprops/action-gh-release@v2
         with:
           files: dist/*
+          generate_release_notes: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
